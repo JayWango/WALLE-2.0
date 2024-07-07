@@ -81,14 +81,8 @@ class smalle():
 
     def run(self):
     # Set Time
-        script_path = './rtc/nano_setTimeRTC.py'
-        try:
-            result = subprocess.run(['python3', script_path], capture_output=True, text=True, check=True)
-            print(result.stdout)
-            if(result.stderr):
-                print(result.stderr)
-        except subprocess.CalledProcessError as e:
-            print(f"Error output: {e.stderr}")  
+        rtc_process = subprocess.Popen(['python3', './rtc/nano_setTimeRTC.py'])
+        time.sleep(2)
 
     # Preview State
         # Intializes a camera preview
