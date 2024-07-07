@@ -28,12 +28,12 @@ class smalle():
     def __init__(self):
 
         # CONFIGURATION VARIABLES
-        self.logintro = "Location Date Smalle #."
-        self.dirname = "recordings/Temp"
+        self.logintro = "BELIZE 2023 - Southwater Caye - July 8 2023. Ambient"
+        self.dirname = "recordings/Southwater_070823_ambient"
         self.dirname = self.check_and_update_dir(self.dirname)
-        self.deployment_duration = 11 # in hours
+        self.deployment_duration = 12 # in hours
         self.preview_state = 3 # minutes to stay in preview state before starting record
-        self.pump_time_cooldowns = [3,3,3] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
+        self.pump_time_cooldowns = [1,1,1] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
         self.use_pump_sys = False
         self.use_sipm_sys = False
 
@@ -46,7 +46,7 @@ class smalle():
         self.preview_toggle = 32
         self.graceful_shutoff_toggle = 31
         self.setUp()
-
+        
     def check_and_update_dir(self, dirname):
         i = 1
         new_dirname = dirname
@@ -79,17 +79,7 @@ class smalle():
             self.lightbeacon()
             exit(0)
 
-    def run(self):
-    # Set Time
-        script_path = './rtc/nano_setTimeRTC.py'
-        try:
-            result = subprocess.run(['python3', script_path], capture_output=True, text=True, check=True)
-            print(result.stdout)
-            if(result.stderr):
-                print(result.stderr)
-        except subprocess.CalledProcessError as e:
-            print(f"Error output: {e.stderr}")  
-
+    def run(self):        
     # Preview State
         # Intializes a camera preview
         # Use switch to exit and proceed to recording state
@@ -131,7 +121,7 @@ class smalle():
         logfile = "LOG_" + formatted_datetime + ".log"
         logging.basicConfig(filename=logfile, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         current_datetime = datetime.now()
-        logging.info("\n*******" + self.logintro)
+        logging.info(self.logintro)
         logging.info('Transitioning to record mode')
         logging.info(current_datetime)
         logging.info("Writing to directory " + self.dirname)
@@ -143,9 +133,9 @@ class smalle():
         if self.use_pump_sys:
             for i in range(3):
                 time.sleep(3600*self.pump_time_cooldowns[i])
-                print("Starting pump " + i)
+                print("Starting pump " + str(i))
                 current_datetime = datetime.now()
-                logging.info('Starting pump ' + i + ' at time: ')
+                logging.info('Starting pump ' + str(i) + ' at time: ')
                 logging.info(current_datetime)
                 self.pump.collectSample(i+1, logfile)
         
@@ -155,10 +145,6 @@ class smalle():
             sipm_proc.terminate()
 	
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
-        current_datetime = datetime.now()
-        logging.info(self.logintro)
-        logging.info('Ending record mode')
-        logging.info(current_datetime)
         #self.lightbeacon()
 
 
