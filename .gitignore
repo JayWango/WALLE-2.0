@@ -38,4 +38,6 @@
 env/
 recordings/
 .fuse*
+.DS_Store
+._*
 
