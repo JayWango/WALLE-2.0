@@ -28,11 +28,11 @@ class smalle():
     def __init__(self):
 
         # CONFIGURATION VARIABLES
-        self.logintro = "Dakota 2024 - Oakley Lab - May 17 2024. Ambient"
-        self.dirname = "recordings/DakotaTest"
+        self.logintro = "BELIZE 2023 - Southwater Caye - July 9 2023. Calibration"
+        self.dirname = "recordings/Southwater_070923_calibrate"
         self.dirname = self.check_and_update_dir(self.dirname)
-        self.deployment_duration = 12 # in hours
-        self.preview_state = 90 # minutes to stay in preview state before starting record
+        self.deployment_duration = 0.05 # in hours
+        self.preview_state = 0.4 # minutes to stay in preview state before starting record
         self.pump_time_cooldowns = [1,1,1] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
         self.use_pump_sys = False
         self.use_sipm_sys = False

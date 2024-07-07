@@ -1,4 +1,3 @@
-sleep 3
 for subdirectory in "/media/$USER/"*; do
   if [[ -d "$subdirectory/WALLE-2.0" ]]; then
     cd "$subdirectory/WALLE-2.0"

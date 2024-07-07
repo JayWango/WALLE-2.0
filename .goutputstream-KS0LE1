@@ -3,9 +3,6 @@ import signal
 import time
 import RPi.GPIO as GPIO
 import threading
-import logging
-from pathlib import Path
-from datetime import datetime
 
 from pump.pump_system import pump_system
 
@@ -22,18 +19,14 @@ def delayed_interrupt_gstreamer(hours):
 
 # 1st Button Switch Crude Power On/Power Off
 # 2nd Button Toggle Camera Preview and Start Recording
-# 3rd Graceful emergency shutoff
+# 3rd Graceful emergency shutof
 
 class smalle():
     def __init__(self):
 
         # CONFIGURATION VARIABLES
-        self.logintro = "Dakota 2024 - Oakley Lab - May 17 2024. Ambient"
-        self.dirname = "recordings/DakotaTest"
-        self.dirname = self.check_and_update_dir(self.dirname)
-        self.deployment_duration = 12 # in hours
-        self.preview_state = 90 # minutes to stay in preview state before starting record
-        self.pump_time_cooldowns = [1,1,1] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
+        self.deployment_duration = 10 # in hours
+        self.pump_time_cooldowns = [3,3,3] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
         self.use_pump_sys = False
         self.use_sipm_sys = False
 
@@ -45,17 +38,8 @@ class smalle():
         # PIN DEFINITION
         self.preview_toggle = 32
         self.graceful_shutoff_toggle = 31
+
         self.setUp()
-        
-    def check_and_update_dir(self, dirname):
-        i = 1
-        new_dirname = dirname
-        while True:
-            if not Path(new_dirname).exists():
-                break
-            new_dirname = f"{dirname}_{i}"
-            i += 1
-        return new_dirname
 
     # Sets up all of the GPIO pins required for the cam system
     def setUp(self):
@@ -66,8 +50,8 @@ class smalle():
 
     # Trigger light beacon
     def lightbeacon(self):
-        lightbeacon_proc = subprocess.Popen(["./lightbeacon.sh"])
-        lightbeacon_proc.wait()
+        ## TODO
+        return "stub"
 
     # signals the camera process to end while preserving the video footage
     def gracefulShutoff(self, channel):
@@ -79,65 +63,39 @@ class smalle():
             self.lightbeacon()
             exit(0)
 
-    def run(self):        
+    def run(self):
+
     # Preview State
         # Intializes a camera preview
         # Use switch to exit and proceed to recording state
         preview_proc = subprocess.Popen(["./cam/cams_preview.sh"])
-        print("Preview Mode")
 
-        # Hold in preview mode for the time specified in the setup parameter       
-        time.sleep(60 * self.preview_state)
+        # Waits for the switch trigger to interrupt the preview process
+        GPIO.wait_for_edge(self.preview_toggle, GPIO.FALLING)
+        print("Waiting")
         subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
         preview_proc.wait()
-        print("Transitioning to record mode")
+        print("Done!")
 
-        #****Run commands to shutoff display in record mode***********************************
+        # Run commands to shutoff display
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
-               
-        # Original version waited for switch to trigger recording 
-        # Could make this a different option at some point, to use switch instead
-        ## Waits for the switch trigger to interrupt the preview process
-        #GPIO.wait_for_edge(self.preview_toggle, GPIO.FALLING)
-        #print("Waiting")
-        #subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
-        #preview_proc.wait()
-        #print("Done!")
-
-        ## Run commands to shutoff display
-        #subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
 
     # Recording State
         # Camera recording is initialized
-        self.recording_process = subprocess.Popen(["./cam/cams_recording.sh", self.dirname])
+        self.recording_process = subprocess.Popen(["./cam/cams_recording.sh"])
 
         # Thread in background that waits for the set deployment duration, which after interrupts the recording process
         delayed_interrupt_gstreamer(self.deployment_duration)
-
-	# Configure logging Don't log until after Preview mode
-        # Get the current date and time and format the date and time from JetsonOS for log file name
-        current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H.%M.%S")
-        logfile = "LOG_" + formatted_datetime + ".log"
-        logging.basicConfig(filename=logfile, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        current_datetime = datetime.now()
-        logging.info(self.logintro)
-        logging.info('Transitioning to record mode')
-        logging.info(current_datetime)
-        logging.info("Writing to directory " + self.dirname)
 
         if self.use_sipm_sys:
             sipm_proc = subprocess.Popen(["./command/to/sipm"]) ## TODO: create callable SiPM python script
         
         # Sleeps until it is time to collect DNA samples (3 in total)
         if self.use_pump_sys:
-            for i in range(3):
-                time.sleep(3600*self.pump_time_cooldowns[i])
-                print("Starting pump " + str(i))
-                current_datetime = datetime.now()
-                logging.info('Starting pump ' + str(i) + ' at time: ')
-                logging.info(current_datetime)
-                self.pump.collectSample(i+1, logfile)
+            self.pump.collectSample(1)
+            # for i in range(3):
+            #     sleep(3600*self.pump_time_cooldowns[i])
+            #     self.pump.collectSample(i+1)
         
         # Waits until recording process ends. delayed_interrupt_gstreamer will interrupt the process.
         self.recording_process.wait()
@@ -145,7 +103,7 @@ class smalle():
             sipm_proc.terminate()
 	
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
-        #self.lightbeacon()
+        self.lightbeacon()
 
 
 # driver code
