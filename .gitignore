@@ -37,6 +37,9 @@
 
 env/
 recordings/
+logs/
+LOG_
+.gout
 .fuse*
 .DS_Store
 ._*

@@ -32,7 +32,7 @@ class smalle():
         self.dirname = "recordings/Temp"
         self.dirname = self.check_and_update_dir(self.dirname)
         self.deployment_duration = 11 # in hours
-        self.preview_state = 3 # minutes to stay in preview state before starting record
+        self.preview_state = 1 # minutes to stay in preview state before starting record
         self.pump_time_cooldowns = [3,3,3] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
         self.use_pump_sys = False
         self.use_sipm_sys = False
@@ -122,7 +122,9 @@ class smalle():
         # Get the current date and time and format the date and time from JetsonOS for log file name
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H.%M.%S")
-        logfile = "LOG_" + formatted_datetime + ".log"
+        log_directory = Path("logs")
+        log_directory.mkdir(parents=True, exist_ok=True)
+        logfile =  log_directory / f"LOG_{formatted_datetime}.log"
         logging.basicConfig(filename=logfile, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         current_datetime = datetime.now()
         logging.info("\n*******" + self.logintro)
