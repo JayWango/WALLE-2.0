@@ -98,18 +98,6 @@ class smalle():
 
         #****Run commands to shutoff display in record mode***********************************
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
-               
-        # Original version waited for switch to trigger recording 
-        # Could make this a different option at some point, to use switch instead
-        ## Waits for the switch trigger to interrupt the preview process
-        #GPIO.wait_for_edge(self.preview_toggle, GPIO.FALLING)
-        #print("Waiting")
-        #subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
-        #preview_proc.wait()
-        #print("Done!")
-
-        ## Run commands to shutoff display
-        #subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
 
     # Recording State
         # Camera recording is initialized
