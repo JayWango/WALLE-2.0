@@ -108,6 +108,10 @@ class smalle():
             # Preview State
             preview_proc = subprocess.Popen(["./cam/cams_preview_left.sh"])
             self.camera_preview_state(preview_proc)
+
+            print("Transitioning to record mode")
+            # Recording State
+            self.recording_process = subprocess.Popen(["./cam/cams_recording_left.sh", self.dirname])
             
         elif (self.check_camera_connectivity('192.168.0.251')):
             print("Right camera detected")
@@ -116,17 +120,16 @@ class smalle():
             preview_proc = subprocess.Popen(["./cam/cams_preview_right.sh"])
             self.camera_preview_state(preview_proc)
 
+            print("Transitioning to record mode")
+            # Recording State
+            self.recording_process = subprocess.Popen(["./cam/cams_recording_right.sh", self.dirname])
+
         else: 
             print("No camera detected")
             exit(0)
 
-        print("Transitioning to record mode")
-        #****Run commands to shutoff display in record mode***********************************
-        subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
-
-    # Recording State
-        # Camera recording is initialized
-        self.recording_process = subprocess.Popen(["./cam/cams_recording.sh", self.dirname])
+        # Run commands to shutoff display in record mode --> don't need this for now 
+        # subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
 
         # Thread in background that waits for the set deployment duration, which after interrupts the recording process
         delayed_interrupt_gstreamer(self.deployment_duration)
@@ -144,31 +147,15 @@ class smalle():
         logging.info('Transitioning to record mode')
         logging.info(current_datetime)
         logging.info("Writing to directory " + self.dirname)
-
-        if self.use_sipm_sys:
-            sipm_proc = subprocess.Popen(["./command/to/sipm"]) ## TODO: create callable SiPM python script
-        
-        # Sleeps until it is time to collect DNA samples (3 in total)
-        if self.use_pump_sys:
-            for i in range(3):
-                time.sleep(3600*self.pump_time_cooldowns[i])
-                print("Starting pump " + i)
-                current_datetime = datetime.now()
-                logging.info('Starting pump ' + i + ' at time: ')
-                logging.info(current_datetime)
-                self.pump.collectSample(i+1, logfile)
         
         # Waits until recording process ends. delayed_interrupt_gstreamer will interrupt the process.
         self.recording_process.wait()
-        if self.use_sipm_sys:
-            sipm_proc.terminate()
 	
-        subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
+        # subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
         current_datetime = datetime.now()
         logging.info(self.logintro)
         logging.info('Ending record mode')
         logging.info(current_datetime)
-        #self.lightbeacon()
 
 
 # driver code
