@@ -6,7 +6,7 @@ import threading
 import logging
 from pathlib import Path
 from datetime import datetime
-import psutil
+import os
 
 from pump.pump_system import pump_system
 
@@ -57,23 +57,16 @@ class smalle():
             i += 1
         return new_dirname
     
-    # returns list of IPs for current active connections on the Jetson Nano 
-    def remote_ips(self):
-        ips = []
-        for process in psutil.process_iter():
-            try:
-                connections = process.net_connections(kind='inet')
-            except (psutil.AccessDenied, psutil.NoSuchProcess):
-                pass
-            else:
-                for connection in connections:
-                    if connection.raddr and connection.raddr.ip not in ips:
-                        ips.append(connection.raddr.ip)
-        return ips
+    def check_camera_connectivity(self, ip):
+        # -c 3 --> sends 3 ping requests
+        # -W 3 --> waits 3 seconds before ping request times out 
+        ping_cmd = f"ping -c 3 -W 3 {ip}"
+        ret = os.system(ping_cmd)
 
-    # check if specific ip address is connected to device, returns True or False
-    def remote_ip_present(self, ip):
-        return ip in self.remote_ips()
+        if (ret == 0):
+            return True
+        return False
+
 
     # Sets up all of the GPIO pins required for the cam system
     def setUp(self):
@@ -109,15 +102,17 @@ class smalle():
         rtc_process = subprocess.Popen(['python3', './rtc/nano_setTimeRTC.py'])
         time.sleep(2)
 
-    # Preview State
-        # check if left or right camera is plugged in
-        if (self.remote_ip_present('192.168.0.250')):
+        if (self.check_camera_connectivity('192.168.0.250')):
             print("Left camera detected")
+
+            # Preview State
             preview_proc = subprocess.Popen(["./cam/cams_preview_left.sh"])
             self.camera_preview_state(preview_proc)
             
-        elif (self.remote_ip_present('192.168.0.251')):
+        elif (self.check_camera_connectivity('192.168.0.251')):
             print("Right camera detected")
+
+            # Preview State
             preview_proc = subprocess.Popen(["./cam/cams_preview_right.sh"])
             self.camera_preview_state(preview_proc)
 
