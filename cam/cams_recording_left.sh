@@ -14,5 +14,3 @@ gst-launch-1.0 -e rtspsrc location=rtsp://192.168.0.250:554/h264 ! rtph264depay 
 
 # 60000000000 ns = 1 minute
 # so records for 30 minutes max per call 
-
-# note: MODIFY THIS SHELL SCRIPT SO THAT IT CONTAINS THE ORIGINAL PIPELINE FOR BOTH CAMERAS

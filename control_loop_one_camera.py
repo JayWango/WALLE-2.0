@@ -96,6 +96,13 @@ class smalle():
             self.recording_process.wait()
             self.lightbeacon()
             exit(0)
+        
+    def camera_preview_state(self, preview):
+        print("Preview Mode")
+        # Hold in preview mode for the time specified in the setup parameter       
+        time.sleep(60 * self.preview_state)
+        subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
+        preview.wait()
 
     def run(self):
     # Set Time
@@ -105,15 +112,14 @@ class smalle():
     # Preview State
         # check if left or right camera is plugged in
         if (self.remote_ip_present('192.168.0.250')):
+            print("Left camera detected")
             preview_proc = subprocess.Popen(["./cam/cams_preview_left.sh"])
-        elif (self.remote_ip_present('192.168.0.251')):
-            preview_proc = subprocess.Popen(["./cam/cams_preview_right.sh"])
+            self.camera_preview_state(preview_proc)
             
-        print("Preview Mode")
-        # Hold in preview mode for the time specified in the setup parameter       
-        time.sleep(60 * self.preview_state)
-        subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
-        preview_proc.wait()
+        elif (self.remote_ip_present('192.168.0.251')):
+            print("Right camera detected")
+            preview_proc = subprocess.Popen(["./cam/cams_preview_right.sh"])
+            self.camera_preview_state(preview_proc)
 
         print("Transitioning to record mode")
         #****Run commands to shutoff display in record mode***********************************
@@ -126,7 +132,7 @@ class smalle():
         # Thread in background that waits for the set deployment duration, which after interrupts the recording process
         delayed_interrupt_gstreamer(self.deployment_duration)
 
-	# Configure logging Don't log until after Preview mode
+	# Configure logging - don't log until after Preview mode
         # Get the current date and time and format the date and time from JetsonOS for log file name
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H.%M.%S")
