@@ -62,13 +62,13 @@ class smalle():
         ips = []
         for process in psutil.process_iter():
             try:
-                connections = process.get_connections(kind='inet')
-            except (psutil.AccessDenied or psutil.NoSuchProcess):
+                connections = process.net_connections(kind='inet')
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
                 pass
             else:
                 for connection in connections:
-                    if connection.remote_address and connection.remote_address[0] not in ips:
-                        ips.append(connection.remote_address[0])
+                    if connection.raddr and connection.raddr.ip not in ips:
+                        ips.append(connection.raddr.ip)
         return ips
 
     # check if specific ip address is connected to device, returns True or False
