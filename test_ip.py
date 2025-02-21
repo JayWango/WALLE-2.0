@@ -1,22 +1,13 @@
-import psutil
+import os
 
-def remote_ips():
-    ips = []
-    for process in psutil.process_iter():
-        try:
-            connections = process.net_connections(kind='inet')
-        except (psutil.AccessDenied, psutil.NoSuchProcess):
-            pass
-        else:
-            for connection in connections:
-                if connection.raddr and connection.raddr.ip not in ips:
-                    ips.append(connection.raddr.ip)
-    return ips
+# -c 3 --> sends 3 ping requests
+# -W 3 --> waits 3 seconds before ping request times out 
 
-def remote_ip_present(ip):
-    return ip in remote_ips()
+ping_cmd = "ping -c 3 -W 3 192.168.0.250"  # Linux
 
-if __name__ == '__main__':
-    print(remote_ips())
-    print("Left cam: " + str(remote_ip_present('192.168.0.250')))
-    print("Right cam: " + str(remote_ip_present('192.168.0.251')))
+ret = os.system(ping_cmd)
+
+if ret != 0:
+    print("Left cam not connected")
+else:
+    print("Left cam connected")

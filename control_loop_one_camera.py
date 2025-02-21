@@ -121,6 +121,10 @@ class smalle():
             preview_proc = subprocess.Popen(["./cam/cams_preview_right.sh"])
             self.camera_preview_state(preview_proc)
 
+        else: 
+            print("No camera detected")
+            exit(0)
+
         print("Transitioning to record mode")
         #****Run commands to shutoff display in record mode***********************************
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
