@@ -128,8 +128,8 @@ class smalle():
             print("No camera detected")
             exit(0)
 
-        # Run commands to shutoff display in record mode --> don't need this for now 
-        # subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
+        # Run commands to shutoff display in record mode 
+        subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "off"])
 
         # Thread in background that waits for the set deployment duration, which after interrupts the recording process
         delayed_interrupt_gstreamer(self.deployment_duration)
