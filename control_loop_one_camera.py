@@ -151,7 +151,7 @@ class smalle():
         # Waits until recording process ends. delayed_interrupt_gstreamer will interrupt the process.
         self.recording_process.wait()
 	
-        # subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
+        subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
         current_datetime = datetime.now()
         logging.info(self.logintro)
         logging.info('Ending record mode')
