@@ -13,7 +13,7 @@ from pump.pump_system import pump_system
 # Interrupts gstreamer processes after given hours. Runs in background.
 def delayed_interrupt_gstreamer(hours):
     def delayed_execution():
-        time.sleep(hours * 60)  # Convert hours to seconds -- UPDATE: changed 3600 to 60 for testing purposes
+        time.sleep(hours * 3600)  # Convert hours to seconds
         subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
 
     thread = threading.Thread(target=delayed_execution)
@@ -31,7 +31,7 @@ class smalle():
         self.dirname = f"recordings/{directory}"
         self.dirname = self.check_and_update_dir(self.dirname)
         self.preview_state = preview_time               # minutes to stay in preview state before starting record
-        self.deployment_duration = deployment_time      # in hours -- update: changed from 11 to 1 for testing purposes
+        self.deployment_duration = deployment_time      # in hours 
 
     def check_and_update_dir(self, dirname):
         i = 1
