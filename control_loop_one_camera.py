@@ -113,8 +113,8 @@ class smalle():
         
         # Waits until recording process ends. delayed_interrupt_gstreamer will interrupt the process.
         self.recording_process.wait()
-	
         subprocess.run(["xset", "-display", ":0.0", "dpms", "force", "on"])
+        
         current_datetime = datetime.now()
         logging.info(self.logintro)
         logging.info('Ending record mode')
@@ -124,7 +124,8 @@ class smalle():
 # driver code
 if __name__ == '__main__':
     video_directory = input("Enter name of folder to store recordings in: ")
-    preview_time = int(input("Enter preview duration (in minutes): "))
-    deployment_time = int(input("Enter deployment duration (in hours): "))
+    preview_time = float(input("Enter preview duration (in minutes): "))
+    deployment_time = float(input("Enter deployment duration (in hours): "))
+    print() # print a newline for formatting purposes 
     s = smalle(video_directory, preview_time, deployment_time)
     s.run()
