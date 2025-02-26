@@ -12,7 +12,7 @@ from pump.pump_system import pump_system
 # Interrupts gstreamer processes after given hours. Runs in background.
 def delayed_interrupt_gstreamer(hours):
     def delayed_execution():
-        time.sleep(hours * 60)  # Convert hours to seconds -- UPDATE: changed 3600 to 60 for testing purposes
+        time.sleep(hours * 3600)  # Convert hours to seconds
         subprocess.Popen(["./cam/interrupt_gstreamer.sh"])
 
     thread = threading.Thread(target=delayed_execution)
@@ -30,7 +30,7 @@ class smalle():
         self.logintro = "Location Date Smalle #."
         self.dirname = "recordings/Temp"
         self.dirname = self.check_and_update_dir(self.dirname)
-        self.deployment_duration = 1 # in hours -- update: changed from 11 to 1 for testing purposes
+        self.deployment_duration = 11 # in hours 
         self.preview_state = 1 # minutes to stay in preview state before starting record
         self.pump_time_cooldowns = [3,3,3] # The time in between collections ie: for [3,3,3], pump will trigger at hours 3, 6, and 9 
         self.use_pump_sys = False
